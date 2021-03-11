@@ -35,7 +35,7 @@ jobs:
     steps:
       - checkout
       - *restore_npm_cache
-      - run: npm build
+      - run: npm run build
       - *save_npm_cache
       - run: npm run test
   
