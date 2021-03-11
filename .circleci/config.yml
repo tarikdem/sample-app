@@ -28,31 +28,30 @@ jobs:
       - *save_npm_cache
       - run: npm run test
   
-  build:
+  build-and-deploy-staging:
     docker:
       - image: circleci/node:12.21
-
+    
     steps:
       - checkout
       - *restore_npm_cache
       - run: npm install
       - *save_npm_cache
       - run: npm run build
-  
-  deploy-staging:
-    docker:
-      - image: circleci/node:12.21
-    
-    steps:
       - aws-s3/copy:
           from: build
           to: s3://povio-app-react-task
   
-  deploy-production:
+  build-and-deploy-production:
     docker:
       - image: circleci/node:12.21
     
     steps:
+      - checkout
+      - *restore_npm_cache
+      - run: npm install
+      - *save_npm_cache
+      - run: npm run build
       - aws-s3/copy:
           from: build
           to: s3://production-povio-app-react-task
@@ -62,19 +61,19 @@ workflows:
   build-and-deploy-app-s3-staging:
     jobs:
       - test
-      - build:
+      - build-and-deploy-staging:
           requires:
             - test
-      - deploy-staging:
-          requires:
-            - build
 
   build-and-deploy-app-s3-production:
     jobs:
-      - test
-      - build:
+      - test:
+          filters:
+            branches:
+                ignore: /.*/
+      - build-and-deploy-production:
+          filters:
+            branches:
+                ignore: /.*/
           requires:
             - test
-      - deploy-production:
-          requires:
-            - build
