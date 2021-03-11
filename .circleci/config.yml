@@ -35,9 +35,9 @@ jobs:
     steps:
       - checkout
       - *restore_npm_cache
-      - run: npm run build
+      - run: npm install
       - *save_npm_cache
-      - run: npm run test
+      - run: npm run build
   
   deploy-staging:
     docker:
